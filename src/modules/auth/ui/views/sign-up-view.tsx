@@ -1,26 +1,27 @@
 "use client";
 import { Card, CardContent } from "@/components/ui/card";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { FaGoogle, FaGithub } from "react-icons/fa";
 
+import { z } from "zod";
+
+import { Alert, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { useForm } from "react-hook-form";
-import { Button } from "@/components/ui/button";
+import { authClient } from "@/lib/auth-client";
 import { OctagonAlertIcon } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { authClient } from "@/lib/auth-client";
+import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 
 const formSchema = z
   .object({
@@ -31,11 +32,11 @@ const formSchema = z
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "password don't match ",
-    path: ['confirmPassword']
+    path: ["confirmPassword"],
   });
 
 export const SignUpView = () => {
-  const router = useRouter();
+  const router = useRouter()
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
@@ -44,7 +45,7 @@ export const SignUpView = () => {
       email: "",
       password: "",
       confirmPassword: "",
-      name: ""
+      name: "",
     },
   });
 
@@ -58,10 +59,31 @@ export const SignUpView = () => {
         name: values.name,
         email: values.email,
         password: values.password,
+        callbackURL: "/",
       },
       {
         onSuccess: () => {
-          router.push("/");
+          setPending(false);
+          router.push("/")
+        },
+        onError: ({ error }) => {
+          setError(error.message);
+          setPending(false);
+        },
+      }
+    );
+  }
+  function onSocial(provider: "github" | "google") {
+    setError(null);
+    setPending(true);
+
+    authClient.signIn.social(
+      {
+        provider: provider,
+        callbackURL: "/",
+      },
+      {
+        onSuccess: () => {
           setPending(false);
         },
         onError: ({ error }) => {
@@ -111,7 +133,7 @@ export const SignUpView = () => {
                       <FormItem>
                         <FormLabel>Email</FormLabel>
                         <FormControl>
-                          <Input placeholder="email"  {...field} />
+                          <Input placeholder="email" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -172,16 +194,18 @@ export const SignUpView = () => {
                   type="button"
                   className="w-full"
                   disabled={pending}
+                  onClick={() => onSocial("google")}
                 >
-                  Google
+                  <FaGoogle />
                 </Button>
                 <Button
                   variant={"outline"}
                   type="button"
                   className="w-full"
                   disabled={pending}
+                  onClick={() => onSocial("github")}
                 >
-                  GitHub
+                  <FaGithub />
                 </Button>
               </div>
               <div className="text-center text-sm">

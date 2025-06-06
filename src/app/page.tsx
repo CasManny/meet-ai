@@ -1,11 +1,17 @@
-"use client"
+import { auth } from "@/lib/auth";
+import HomeView from "@/modules/home/ui/views/home-view";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
-import { useState } from "react";
+const Page = async () => {
+  const session = await auth.api.getSession({ headers: await headers() });
+ 
 
-export default function Home() {
-  const [email, setEmail] = useState("")
-  return (
-    <div className="">hello</div>
-  
-  );
-}
+  if (!session) {
+    redirect("/sign-in")
+  }
+
+  return <HomeView />;
+};
+
+export default Page;

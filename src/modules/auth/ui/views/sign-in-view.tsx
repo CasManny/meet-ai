@@ -1,26 +1,26 @@
 "use client";
 import { Card, CardContent } from "@/components/ui/card";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
+import { Alert, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { FaGoogle, FaGithub } from "react-icons/fa";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { useForm } from "react-hook-form";
-import { Button } from "@/components/ui/button";
+import { authClient } from "@/lib/auth-client";
 import { OctagonAlertIcon } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { authClient } from "@/lib/auth-client";
+import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -28,8 +28,8 @@ const formSchema = z.object({
 });
 
 export const SignInView = () => {
-  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
   const [pending, setPending] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -48,10 +48,32 @@ export const SignInView = () => {
       {
         email: values.email,
         password: values.password,
+        callbackURL: "/",
       },
       {
         onSuccess: () => {
+          setPending(false);
           router.push("/");
+        },
+        onError: ({ error }) => {
+          setError(error.message);
+          setPending(false);
+        },
+      }
+    );
+  }
+
+  function onSocial(provider: "github" | "google") {
+    setError(null);
+    setPending(true);
+
+    authClient.signIn.social(
+      {
+        provider: provider,
+        callbackURL: "/",
+      },
+      {
+        onSuccess: () => {
           setPending(false);
         },
         onError: ({ error }) => {
@@ -131,18 +153,20 @@ export const SignInView = () => {
                 <Button
                   variant={"outline"}
                   type="button"
-                  className="w-full"
+                  className="w-full cursor-pointer"
                   disabled={pending}
+                  onClick={() => onSocial("google")}
                 >
-                  Google
+                  <FaGoogle />
                 </Button>
                 <Button
                   variant={"outline"}
                   type="button"
-                  className="w-full"
+                  className="w-full cursor-pointer"
                   disabled={pending}
+                  onClick={() => onSocial("github")}
                 >
-                  GitHub
+                  <FaGithub />
                 </Button>
               </div>
               <div className="text-center text-sm">
