@@ -6,7 +6,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -31,7 +31,7 @@ export const AgentForm = ({
   initialValues,
 }: AgentFormProps) => {
   const trpc = useTRPC();
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient(); 
 
   const form = useForm<z.infer<typeof agentsInsertSchema>>({
     resolver: zodResolver(agentsInsertSchema),
@@ -43,7 +43,23 @@ export const AgentForm = ({
   const createAgent = useMutation(
     trpc.agents.create.mutationOptions({
       onSuccess: async () => {
-        await queryClient.invalidateQueries(trpc.agents.getMany.queryOptions({}));
+        await queryClient.invalidateQueries(
+          trpc.agents.getMany.queryOptions({})
+        );
+        onSuccess?.();
+      },
+      onError: (error: any) => {
+        toast.error(error.message);
+      },
+    })
+  );
+
+  const updateAgent = useMutation(
+    trpc.agents.updateAgent.mutationOptions({
+      onSuccess: async () => {
+        await queryClient.invalidateQueries(
+          trpc.agents.getMany.queryOptions({})
+        );
         if (initialValues?.id) {
           await queryClient.invalidateQueries(
             trpc.agents.getOne.queryOptions({ id: initialValues.id })
@@ -51,18 +67,18 @@ export const AgentForm = ({
         }
         onSuccess?.();
       },
-      onError: (error: any) => {
-        toast.error(error.message)
+      onError: (error) => {
+        toast.error(error.message);
       },
     })
   );
 
   const isEdit = !!initialValues?.id;
-  const isPending = createAgent.isPending;
+  const isPending = createAgent.isPending || updateAgent.isPending
 
   function onSubmit(values: z.infer<typeof agentsInsertSchema>) {
     if (isEdit) {
-      console.log("Todo: update agent");
+      updateAgent.mutate({ ...values, id: initialValues.id})
     } else {
       createAgent.mutate(values);
     }
