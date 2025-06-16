@@ -14,23 +14,29 @@ import {
   MAX_PAGE_SIZE,
   MIN_PAGE_SIZE,
 } from "@/constants";
+import { TRPCError } from "@trpc/server";
 
 export const agentsRouter = createTRPCRouter({
-  getOne: baseProcedure
+  getOne: protectedProcedure
     .input(
       z.object({
         id: z.string(),
       })
     )
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       const { id } = input;
+      const { auth } = ctx;
       const [existingAgent] = await db
         .select({
           ...getTableColumns(agents),
           meetingCount: sql<number>`5`,
         })
         .from(agents)
-        .where(eq(agents.id, id));
+        .where(and(eq(agents.id, id), eq(agents.userId, auth.user.id)));
+      
+      if (!existingAgent) {
+        throw new TRPCError({code: "NOT_FOUND", message: "Agent not found"})
+      }
       return existingAgent;
     }),
   getMany: protectedProcedure
@@ -61,8 +67,7 @@ export const agentsRouter = createTRPCRouter({
         )
         .orderBy(desc(agents.createdAt), desc(agents.id))
         .limit(pageSize)
-        .offset((page - 1) * pageSize)
-      
+        .offset((page - 1) * pageSize);
 
       const [total] = await db
         .select({ count: count() })
@@ -80,7 +85,7 @@ export const agentsRouter = createTRPCRouter({
         items: data,
         totalPages,
         total: total.count,
-      }
+      };
     }),
   create: protectedProcedure
     .input(agentsInsertSchema)
