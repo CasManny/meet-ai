@@ -1,8 +1,8 @@
 import {
-    DEFAULT_PAGE,
-    DEFAULT_PAGE_SIZE,
-    MAX_PAGE_SIZE,
-    MIN_PAGE_SIZE,
+  DEFAULT_PAGE,
+  DEFAULT_PAGE_SIZE,
+  MAX_PAGE_SIZE,
+  MIN_PAGE_SIZE,
 } from "@/constants";
 import { db } from "@/db";
 import { meetings } from "@/db/schema";
@@ -10,6 +10,7 @@ import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import { TRPCError } from "@trpc/server";
 import { and, count, desc, eq, getTableColumns, ilike } from "drizzle-orm";
 import { z } from "zod";
+import { MeetingsInsertSchema, MeetingsUpdateSchema } from "../schemas";
 
 export const meetingsRouter = createTRPCRouter({
   getOne: protectedProcedure
@@ -29,7 +30,10 @@ export const meetingsRouter = createTRPCRouter({
         .where(and(eq(meetings.id, id), eq(meetings.userId, auth.user.id)));
 
       if (!existingeMeeting) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "No existing Meeting not found" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "No existing Meeting not found",
+        });
       }
       return existingeMeeting;
     }),
@@ -79,5 +83,37 @@ export const meetingsRouter = createTRPCRouter({
         totalPages,
         total: total.count,
       };
+    }),
+  create: protectedProcedure
+    .input(MeetingsInsertSchema)
+    .mutation(async ({ input, ctx }) => {
+      const { auth } = ctx;
+      const [createdMeeting] = await db
+        .insert(meetings)
+        .values({
+          ...input,
+          userId: auth.user.id,
+        })
+        .returning();
+      return createdMeeting;
+    }),
+  updateMeeting: protectedProcedure
+    .input(MeetingsUpdateSchema)
+    .mutation(async ({ input, ctx }) => {
+      const { auth } = ctx;
+      const [updatedMeeting] = await db
+        .update(meetings)
+        .set(input)
+        .where(and(eq(meetings.id, input.id), eq(meetings.userId, auth.user.id)))
+        .returning();
+
+      if (!updatedMeeting) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Meeting not found or unauthorized",
+        });
+      }
+
+      return updatedMeeting;
     }),
 });
