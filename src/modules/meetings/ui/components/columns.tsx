@@ -43,6 +43,7 @@ const statusColorMap = {
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 export type MeetingGetMany = {
+  id: string;
   name: string;
   duration: number;
   agent: {

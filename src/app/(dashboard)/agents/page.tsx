@@ -12,7 +12,7 @@ import { AgentListHeader } from "@/modules/agents/ui/components/list-header";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { SearchParams } from "nuqs";
+import type { SearchParams } from "nuqs/server";
 import { loadSearchParams } from "@/modules/agents/params";
 
 interface Props {

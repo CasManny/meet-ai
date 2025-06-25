@@ -13,3 +13,11 @@ export type AgentGetOne = {
   createdAt: Date;
   updatedAt: Date;
 };
+
+export enum MeetingStatus {
+  Upcoming = "upcoming",
+  Active = "active",
+  Completed = "completed",
+  Processing = "processing",
+  Cancelled = "cancelled"
+}
