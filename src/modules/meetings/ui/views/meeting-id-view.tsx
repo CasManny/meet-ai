@@ -1,19 +1,23 @@
 "use client";
 
+import { ActiveState } from "@/components/active-state";
+import { CancelledState } from "@/components/cancel-state";
 import { ErrorState } from "@/components/error-state";
 import { LoadingState } from "@/components/loading-state";
+import { UpcomingState } from "@/components/upcoming-state";
+import { useConfirm } from "@/hooks/use-confirm";
 import { useTRPC } from "@/trpc/client";
 import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
+    useMutation,
+    useQueryClient,
+    useSuspenseQuery,
 } from "@tanstack/react-query";
-import { MeetingIdHeader } from "./meeing-id-header";
-import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { useConfirm } from "@/hooks/use-confirm";
-import { UpdateMeetingDialog } from "../components/update-meeting-dialog";
 import { useState } from "react";
+import { toast } from "sonner";
+import { UpdateMeetingDialog } from "../components/update-meeting-dialog";
+import { MeetingIdHeader } from "./meeing-id-header";
+import { ProcessingState } from "@/components/processing-state";
 
 interface Props {
   id: string;
@@ -50,6 +54,13 @@ export const MeetingIdView = ({ id }: Props) => {
     if (!success) return;
     deleteMeeting.mutate({ id });
   };
+
+  const isActive = data.status === "active";
+  const isUpcoming = data.status === "upcoming";
+  const isCancelled = data.status === "cancelled";
+  const isCompleted = data.status === "completed";
+  const isProcessing = data.status === "processing";
+
   return (
     <>
       <RemoveConfirmation />
@@ -65,6 +76,17 @@ export const MeetingIdView = ({ id }: Props) => {
           onEdit={() => setEditMeeting(true)}
           onRemove={handleRemove}
         />
+        {isCancelled && <CancelledState />}
+        {isProcessing && <ProcessingState />}
+        {isCompleted && <div>Completed</div>}
+        {isUpcoming && (
+          <UpcomingState
+            isCancelling={false}
+            meetingId={id}
+            onCancelMeeting={() => {}}
+          />
+        )}
+        {isActive && <ActiveState meetingId={id} />}
       </div>
     </>
   );
