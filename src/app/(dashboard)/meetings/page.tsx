@@ -13,9 +13,9 @@ import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
 const MeetingsPage = async () => {
-  const session = await auth.api.getSession({ headers: await headers() })
+  const session = await auth.api.getSession({ headers: await headers() });
   if (!session) {
-    redirect("/sign-in")
+    redirect("/sign-in");
   }
   const queryClient = getQueryClient();
   void queryClient.prefetchQuery(trpc.meetings.getMany.queryOptions({}));
