@@ -8,6 +8,7 @@
     "db:studio": "npx drizzle-kit studio",
     "build": "next build",
     "start": "next start",
+    "dev:webhook": "put_in_ngrok_url_with_my_local_host",
     "lint": "next lint"
   },
   "dependencies": {
@@ -24,6 +25,7 @@
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-tooltip": "^1.2.7",
     "@stream-io/node-sdk": "^0.4.25",
+    "@stream-io/openai-realtime-api": "^0.1.4",
     "@stream-io/video-react-sdk": "^1.18.6",
     "@tanstack/react-query": "^5.76.1",
     "@tanstack/react-table": "^8.21.3",
