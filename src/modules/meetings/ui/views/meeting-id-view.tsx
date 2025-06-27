@@ -8,9 +8,9 @@ import { UpcomingState } from "@/components/upcoming-state";
 import { useConfirm } from "@/hooks/use-confirm";
 import { useTRPC } from "@/trpc/client";
 import {
-    useMutation,
-    useQueryClient,
-    useSuspenseQuery,
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
 } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { UpdateMeetingDialog } from "../components/update-meeting-dialog";
 import { MeetingIdHeader } from "./meeing-id-header";
 import { ProcessingState } from "@/components/processing-state";
+import { CompletedState } from "@/components/completed-state";
 
 interface Props {
   id: string;
@@ -78,7 +79,7 @@ export const MeetingIdView = ({ id }: Props) => {
         />
         {isCancelled && <CancelledState />}
         {isProcessing && <ProcessingState />}
-        {isCompleted && <div>Completed</div>}
+        {isCompleted && <CompletedState data={data} />}
         {isUpcoming && (
           <UpcomingState
             isCancelling={false}
