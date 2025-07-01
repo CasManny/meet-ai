@@ -15,6 +15,8 @@ import { GeneratedAvatar } from "./generated-avatars";
 import { format } from "date-fns";
 import { Badge } from "./ui/badge";
 import { formatDuration } from "@/lib/utils";
+import { Transcript } from "@/modules/meetings/ui/components/transcript";
+import { ChatProvider } from "@/modules/meetings/ui/components/chat-provider";
 
 interface Props {
   data: any;
@@ -124,6 +126,12 @@ export const CompletedState = ({ data }: Props) => {
               </div>
             </div>
           </div>
+        </TabsContent>
+        <TabsContent value="transcript">
+          <Transcript meetingId={data.id} />
+        </TabsContent>
+        <TabsContent value="chat">
+          <ChatProvider meetingId={data.id} meetingName={data.name} />
         </TabsContent>
       </Tabs>
     </div>

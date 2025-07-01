@@ -1,4 +1,4 @@
-export type StreamTrancription = {
+export type StreamTrancriptionItem = {
     speaker_id: string;
     type: string;
     text: string;
