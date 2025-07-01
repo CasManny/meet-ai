@@ -6,7 +6,7 @@ import {
 } from "@/constants";
 import { db } from "@/db";
 import { agents, meetings, user } from "@/db/schema";
-import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
+import { createTRPCRouter, premiumProcedure, protectedProcedure } from "@/trpc/init";
 import { TRPCError } from "@trpc/server";
 import {
   and,
@@ -247,7 +247,7 @@ export const meetingsRouter = createTRPCRouter({
         total: total.count,
       };
     }),
-  create: protectedProcedure
+  create: premiumProcedure("meetings")
     .input(MeetingsInsertSchema)
     .mutation(async ({ input, ctx }) => {
       const { auth } = ctx;

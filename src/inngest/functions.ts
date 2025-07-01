@@ -1,4 +1,4 @@
-import { StreamTrancription } from "@/modules/meetings/types";
+import { StreamTrancriptionItem } from "@/modules/meetings/types";
 import { inngest } from "./client";
 import JSONL from "jsonl-parse-stringify";
 import { db } from "@/db";
@@ -46,7 +46,7 @@ export const meetingProcessing = inngest.createFunction(
     // still in json file. install this package to help stringify it jsonl-parse-stringify
 
     const transcript = await step.run("parse-transcript", async () => {
-      return JSONL.parse<StreamTrancription>(response);
+      return JSONL.parse<StreamTrancriptionItem>(response);
     });
 
     const transcriptWithSpeakers = await step.run("add-speakers", async () => {
